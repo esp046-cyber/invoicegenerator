@@ -1,0 +1,1409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>2026 Invoice Generator - techVA</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #10b981;
+            --danger: #ef4444;
+            --bg: #0f172a;
+            --bg-card: #1e293b;
+            --text: #f1f5f9;
+            --text-muted: #94a3b8;
+            --border: #334155;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, var(--bg) 0%, #1e293b 100%);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 1%;
+            line-height: 1.4;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 1%;
+            padding: 2% 1%;
+            background: var(--bg-card);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .header h1 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.3rem;
+        }
+
+        .header p {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 1%;
+            margin-bottom: 1%;
+            border: 1px solid var(--border);
+        }
+
+        .section-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 1%;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-row {
+            display: grid;
+            gap: 1%;
+            margin-bottom: 1%;
+        }
+
+        .form-row.two-col {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        label {
+            display: block;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-bottom: 0.3rem;
+            font-weight: 500;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 0.6rem;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 0.8rem;
+            transition: all 0.2s;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 60px;
+        }
+
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1% 0;
+            font-size: 0.75rem;
+        }
+
+        .items-table th {
+            background: var(--bg);
+            padding: 0.5rem;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid var(--border);
+            font-size: 0.7rem;
+        }
+
+        .items-table td {
+            padding: 0.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .items-table input {
+            padding: 0.4rem;
+        }
+
+        .btn {
+            padding: 0.6rem 1rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            justify-content: center;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #059669;
+            transform: translateY(-1px);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+            padding: 0.4rem 0.6rem;
+            font-size: 0.7rem;
+        }
+
+        .btn-add {
+            width: 100%;
+            margin-top: 1%;
+        }
+
+        .total-section {
+            margin-top: 1%;
+            padding: 1%;
+            background: var(--bg);
+            border-radius: 8px;
+            border: 2px solid var(--primary);
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: 0.8rem;
+        }
+
+        .total-row.grand {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--secondary);
+            padding-top: 0.5rem;
+            border-top: 2px solid var(--border);
+        }
+
+        .actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1%;
+            margin-top: 1%;
+        }
+
+        .preview {
+            display: none;
+            background: white;
+            color: #000;
+            padding: 2%;
+            border-radius: 8px;
+            margin-top: 1%;
+        }
+
+        .preview.active {
+            display: block;
+        }
+
+        .preview-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 2%;
+            padding-bottom: 1%;
+            border-bottom: 2px solid #000;
+        }
+
+        .preview-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .preview-section {
+            margin: 1.5% 0;
+        }
+
+        .preview-label {
+            font-size: 0.7rem;
+            color: #666;
+            font-weight: 600;
+        }
+
+        .preview-value {
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .icon {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+        }
+
+        .logo-upload {
+            text-align: center;
+            padding: 1%;
+            background: var(--bg);
+            border: 2px dashed var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .logo-upload:hover {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        .logo-preview {
+            max-width: 200px;
+            max-height: 80px;
+            margin: 0.5rem auto;
+            display: block;
+        }
+
+        .logo-remove {
+            display: inline-block;
+            margin-top: 0.5rem;
+            font-size: 0.7rem;
+            color: var(--danger);
+            cursor: pointer;
+        }
+
+        .payment-history {
+            margin-top: 1%;
+        }
+
+        .payment-entry {
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 0.5%;
+            margin-bottom: 0.5%;
+            padding: 0.5%;
+            background: var(--bg);
+            border-radius: 6px;
+            align-items: center;
+        }
+
+        .payment-summary {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1%;
+            margin-top: 1%;
+            padding: 1%;
+            background: var(--bg);
+            border-radius: 8px;
+            border: 2px solid var(--secondary);
+        }
+
+        .payment-summary-item {
+            text-align: center;
+            padding: 0.5%;
+        }
+
+        .payment-summary-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-bottom: 0.3rem;
+        }
+
+        .payment-summary-value {
+            font-size: 1rem;
+            font-weight: 700;
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            .container {
+                max-width: 100%;
+            }
+            .header, .card, .actions {
+                display: none;
+            }
+            .preview {
+                display: block !important;
+                box-shadow: none;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .form-row.two-col {
+                grid-template-columns: 1fr;
+            }
+            .actions {
+                grid-template-columns: 1fr;
+            }
+            .header h1 {
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>2026 Invoice Generator</h1>
+            <p>Professional invoicing for every freelancer • techVA</p>
+        </div>
+
+        <!-- Status and Save/Load Bar -->
+        <div class="card" style="padding: 0.8%;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1%;">
+                <div style="display: flex; gap: 0.5rem; align-items: center;">
+                    <label style="margin: 0; font-size: 0.75rem;">Status:</label>
+                    <select id="invoiceStatus" style="width: auto; padding: 0.4rem 0.8rem; font-size: 0.75rem; font-weight: 600;">
+                        <option value="draft">📝 Draft</option>
+                        <option value="sent">📤 Sent</option>
+                        <option value="paid">✅ Paid</option>
+                        <option value="overdue">⚠️ Overdue</option>
+                        <option value="cancelled">❌ Cancelled</option>
+                    </select>
+                </div>
+                <div style="display: flex; gap: 0.5rem;">
+                    <button class="btn btn-primary" onclick="saveInvoice()" style="padding: 0.4rem 0.8rem; font-size: 0.75rem;">💾 Save</button>
+                    <button class="btn btn-secondary" onclick="document.getElementById('loadFile').click()" style="padding: 0.4rem 0.8rem; font-size: 0.75rem;">📂 Load</button>
+                    <input type="file" id="loadFile" accept=".json" style="display: none;" onchange="loadInvoice(event)">
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="section-title">
+                <span class="icon">📋</span>
+                Invoice Details
+            </div>
+            
+            <!-- Logo Upload -->
+            <div class="form-row">
+                <div>
+                    <label>Business Logo</label>
+                    <div class="logo-upload" onclick="document.getElementById('logoInput').click()">
+                        <input type="file" id="logoInput" accept="image/*" style="display: none;" onchange="handleLogoUpload(event)">
+                        <div id="logoPreviewContainer" style="display: none;">
+                            <img id="logoPreview" class="logo-preview" alt="Logo">
+                            <div class="logo-remove" onclick="event.stopPropagation(); removeLogo()">✕ Remove Logo</div>
+                        </div>
+                        <div id="logoPlaceholder">
+                            <div style="font-size: 2rem; margin-bottom: 0.3rem;">🖼️</div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted);">Click to upload logo</div>
+                            <div style="font-size: 0.65rem; color: var(--text-muted); margin-top: 0.2rem;">PNG, JPG, SVG • Max 2MB</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-row two-col">
+                <div>
+                    <label>Invoice Number Prefix</label>
+                    <input type="text" id="invoicePrefix" value="INV-2026-" placeholder="INV-2026-">
+                </div>
+                <div>
+                    <label>Auto Number (Current)</label>
+                    <input type="number" id="invoiceAutoNumber" value="1" min="1" step="1" placeholder="1">
+                </div>
+            </div>
+            <div class="form-row">
+                <button class="btn btn-secondary" onclick="generateNextInvoiceNumber()" style="width: auto; padding: 0.4rem 1rem; font-size: 0.75rem;">
+                    🔄 Generate Next Invoice Number
+                </button>
+            </div>
+
+            <div class="form-row two-col">
+                <div>
+                    <label>Invoice Number</label>
+                    <input type="text" id="invoiceNumber" value="INV-2026-001" placeholder="INV-2026-001">
+                </div>
+                <div>
+                    <label>Date</label>
+                    <input type="date" id="invoiceDate">
+                </div>
+            </div>
+            <div class="form-row two-col">
+                <div>
+                    <label>Due Date</label>
+                    <input type="date" id="dueDate">
+                </div>
+                <div>
+                    <label>Currency</label>
+                    <select id="currency">
+                        <option value="USD">USD - $</option>
+                        <option value="EUR">EUR - €</option>
+                        <option value="GBP">GBP - £</option>
+                        <option value="PHP">PHP - ₱</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="section-title">
+                <span class="icon">👤</span>
+                Your Information
+            </div>
+            <div class="form-row">
+                <div>
+                    <label>Your Name / Business</label>
+                    <input type="text" id="fromName" placeholder="Your Name or Company">
+                </div>
+            </div>
+            <div class="form-row">
+                <div>
+                    <label>Address</label>
+                    <textarea id="fromAddress" placeholder="Your address"></textarea>
+                </div>
+            </div>
+            <div class="form-row two-col">
+                <div>
+                    <label>Email</label>
+                    <input type="email" id="fromEmail" placeholder="you@example.com">
+                </div>
+                <div>
+                    <label>Phone</label>
+                    <input type="tel" id="fromPhone" placeholder="+1 234 567 8900">
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="section-title">
+                <span class="icon">🏢</span>
+                Client Information
+            </div>
+            <div class="form-row">
+                <div>
+                    <label>Client Name</label>
+                    <input type="text" id="toName" placeholder="Client Name or Company">
+                </div>
+            </div>
+            <div class="form-row">
+                <div>
+                    <label>Address</label>
+                    <textarea id="toAddress" placeholder="Client address"></textarea>
+                </div>
+            </div>
+            <div class="form-row two-col">
+                <div>
+                    <label>Email</label>
+                    <input type="email" id="toEmail" placeholder="client@example.com">
+                </div>
+                <div>
+                    <label>Phone</label>
+                    <input type="tel" id="toPhone" placeholder="+1 234 567 8900">
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="section-title">
+                <span class="icon">📦</span>
+                Items / Services
+            </div>
+            <div style="overflow-x: auto;">
+                <table class="items-table">
+                    <thead>
+                        <tr>
+                            <th>Description</th>
+                            <th style="width: 70px;">Qty</th>
+                            <th style="width: 90px;">Rate</th>
+                            <th style="width: 70px;">Tax %</th>
+                            <th style="width: 90px;">Amount</th>
+                            <th style="width: 50px;"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="itemsBody">
+                        <tr>
+                            <td><input type="text" placeholder="Service description" class="item-desc"></td>
+                            <td><input type="number" value="1" min="0" step="0.01" class="item-qty"></td>
+                            <td><input type="number" value="0" min="0" step="0.01" class="item-rate"></td>
+                            <td><input type="number" value="0" min="0" max="100" step="0.1" class="item-tax" placeholder="0"></td>
+                            <td><input type="number" value="0" readonly class="item-amount"></td>
+                            <td><button class="btn btn-danger remove-item">✕</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <button class="btn btn-secondary btn-add" onclick="addItem()">+ Add Item</button>
+
+            <div class="total-section">
+                <div class="total-row">
+                    <span>Subtotal (before tax):</span>
+                    <span id="subtotal">$0.00</span>
+                </div>
+                <div class="total-row">
+                    <span>Discount:</span>
+                    <span style="display: flex; gap: 0.3rem; align-items: center; justify-content: flex-end;">
+                        <input type="number" id="discountValue" value="0" min="0" step="0.01" style="width: 70px; text-align: right;">
+                        <select id="discountType" style="width: 60px; padding: 0.4rem;">
+                            <option value="percent">%</option>
+                            <option value="fixed">Fixed</option>
+                        </select>
+                    </span>
+                </div>
+                <div class="total-row">
+                    <span>Discount Amount:</span>
+                    <span id="discountAmount">$0.00</span>
+                </div>
+                <div class="total-row">
+                    <span>Total Tax (per item):</span>
+                    <span id="taxAmount">$0.00</span>
+                </div>
+                <div class="total-row grand">
+                    <span>Total:</span>
+                    <span id="total">$0.00</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="section-title">
+                <span class="icon">💳</span>
+                Payment Methods
+            </div>
+            <div class="form-row two-col">
+                <div>
+                    <label>Bank Name</label>
+                    <input type="text" id="bankName" placeholder="Your Bank">
+                </div>
+                <div>
+                    <label>Account Number</label>
+                    <input type="text" id="accountNumber" placeholder="1234567890">
+                </div>
+            </div>
+            <div class="form-row two-col">
+                <div>
+                    <label>IBAN</label>
+                    <input type="text" id="iban" placeholder="GB29 NWBK 6016 1331 9268 19">
+                </div>
+                <div>
+                    <label>SWIFT/BIC</label>
+                    <input type="text" id="swift" placeholder="NWBKGB2L">
+                </div>
+            </div>
+            <div class="form-row two-col">
+                <div>
+                    <label>PayPal</label>
+                    <input type="email" id="paypal" placeholder="your@paypal.com">
+                </div>
+                <div>
+                    <label>Venmo / Cash App</label>
+                    <input type="text" id="venmo" placeholder="@yourusername">
+                </div>
+            </div>
+            <div class="form-row">
+                <div>
+                    <label>Crypto Wallet (BTC/ETH/USDT)</label>
+                    <input type="text" id="crypto" placeholder="0x... or bc1...">
+                </div>
+            </div>
+            <div class="form-row">
+                <div>
+                    <label>Payment Instructions</label>
+                    <textarea id="paymentInstructions" placeholder="Additional payment instructions or preferred method..."></textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="section-title">
+                <span class="icon">⏰</span>
+                Late Payment Terms
+            </div>
+            <div class="form-row two-col">
+                <div>
+                    <label>Late Fee Percentage</label>
+                    <input type="number" id="lateFeePercent" value="0" min="0" max="100" step="0.1" placeholder="e.g., 5">
+                </div>
+                <div>
+                    <label>Grace Period (days)</label>
+                    <input type="number" id="gracePeriod" value="0" min="0" step="1" placeholder="e.g., 7">
+                </div>
+            </div>
+            <div class="form-row">
+                <div>
+                    <label>Late Fee Terms</label>
+                    <textarea id="lateFeeTerms" placeholder="e.g., A 5% late fee will be applied if payment is not received within 7 days of the due date."></textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="section-title">
+                <span class="icon">💵</span>
+                Partial Payment Tracking
+            </div>
+            
+            <div class="payment-summary">
+                <div class="payment-summary-item">
+                    <div class="payment-summary-label">Total Invoice Amount</div>
+                    <div class="payment-summary-value" id="invoiceTotal" style="color: var(--primary);">$0.00</div>
+                </div>
+                <div class="payment-summary-item">
+                    <div class="payment-summary-label">Total Paid</div>
+                    <div class="payment-summary-value" id="totalPaid" style="color: var(--secondary);">$0.00</div>
+                </div>
+            </div>
+            
+            <div class="payment-summary" style="border-color: var(--danger); margin-top: 1%;">
+                <div class="payment-summary-item" style="grid-column: 1 / -1;">
+                    <div class="payment-summary-label">Amount Due</div>
+                    <div class="payment-summary-value" id="amountDue" style="color: var(--danger); font-size: 1.3rem;">$0.00</div>
+                </div>
+            </div>
+
+            <div class="payment-history">
+                <label style="font-size: 0.8rem; font-weight: 600; margin-bottom: 0.5rem; display: block;">Payment History</label>
+                <div id="paymentHistoryList">
+                    <!-- Payment entries will be added here -->
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 0.5%; margin-top: 1%;">
+                    <input type="date" id="newPaymentDate" style="font-size: 0.75rem;">
+                    <input type="number" id="newPaymentAmount" placeholder="Amount" min="0" step="0.01" style="font-size: 0.75rem;">
+                    <button class="btn btn-secondary" onclick="addPayment()" style="padding: 0.5rem 1rem; font-size: 0.75rem;">+ Add</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="section-title">
+                <span class="icon">⚖️</span>
+                Terms & Conditions
+            </div>
+            <div class="form-row">
+                <div>
+                    <label>Payment Terms</label>
+                    <textarea id="paymentTerms" placeholder="e.g., Payment is due within 30 days of invoice date. Please include invoice number with payment."></textarea>
+                </div>
+            </div>
+            <div class="form-row">
+                <div>
+                    <label>Refund Policy</label>
+                    <textarea id="refundPolicy" placeholder="e.g., Refunds available within 14 days of payment for unused services."></textarea>
+                </div>
+            </div>
+            <div class="form-row">
+                <div>
+                    <label>Additional Terms & Conditions</label>
+                    <textarea id="termsConditions" placeholder="e.g., Work begins upon receipt of deposit. Late payments subject to interest charges. Disputes must be raised within 7 days."></textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="section-title">
+                <span class="icon">📝</span>
+                Notes / Payment Terms
+            </div>
+            <div class="form-row">
+                <div>
+                    <label>Additional Notes</label>
+                    <textarea id="notes" placeholder="Payment terms, thank you message, or other notes..."></textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="actions">
+            <button class="btn btn-primary" onclick="generatePreview()">👁️ Preview Invoice</button>
+            <button class="btn btn-secondary" onclick="downloadPDF()">📥 Download PDF</button>
+        </div>
+
+        <div class="preview" id="preview">
+            <!-- Preview content will be generated here -->
+        </div>
+    </div>
+
+    <script>
+        // Set default dates
+        document.getElementById('invoiceDate').valueAsDate = new Date();
+        const dueDate = new Date();
+        dueDate.setDate(dueDate.getDate() + 30);
+        document.getElementById('dueDate').valueAsDate = dueDate;
+
+        // Calculate item amounts
+        function updateItemAmount(row) {
+            const qty = parseFloat(row.querySelector('.item-qty').value) || 0;
+            const rate = parseFloat(row.querySelector('.item-rate').value) || 0;
+            const amount = qty * rate;
+            row.querySelector('.item-amount').value = amount.toFixed(2);
+            calculateTotals();
+        }
+
+        // Calculate totals
+        function calculateTotals() {
+            let subtotal = 0;
+            let totalTax = 0;
+
+            // Calculate subtotal and tax from items
+            document.querySelectorAll('#itemsBody tr').forEach(row => {
+                const qty = parseFloat(row.querySelector('.item-qty').value) || 0;
+                const rate = parseFloat(row.querySelector('.item-rate').value) || 0;
+                const itemTax = parseFloat(row.querySelector('.item-tax').value) || 0;
+                
+                const lineTotal = qty * rate;
+                subtotal += lineTotal;
+                
+                // Calculate tax for this item
+                const itemTaxAmount = lineTotal * (itemTax / 100);
+                totalTax += itemTaxAmount;
+            });
+
+            // Calculate discount
+            const discountValue = parseFloat(document.getElementById('discountValue').value) || 0;
+            const discountType = document.getElementById('discountType').value;
+            let discountAmount = 0;
+            
+            if (discountType === 'percent') {
+                discountAmount = subtotal * (discountValue / 100);
+            } else {
+                discountAmount = discountValue;
+            }
+
+            const afterDiscount = subtotal - discountAmount;
+            const total = afterDiscount + totalTax;
+
+            const currency = getCurrencySymbol();
+            document.getElementById('subtotal').textContent = `${currency}${subtotal.toFixed(2)}`;
+            document.getElementById('discountAmount').textContent = `${currency}${discountAmount.toFixed(2)}`;
+            document.getElementById('taxAmount').textContent = `${currency}${totalTax.toFixed(2)}`;
+            document.getElementById('total').textContent = `${currency}${total.toFixed(2)}`;
+            
+            // Update payment tracking
+            updatePaymentTracking(total);
+        }
+
+        // Update payment tracking displays
+        function updatePaymentTracking(invoiceTotal) {
+            const currency = getCurrencySymbol();
+            let totalPaid = 0;
+            
+            document.querySelectorAll('.payment-entry').forEach(entry => {
+                const amount = parseFloat(entry.querySelector('.payment-amount-display').textContent.replace(/[^0-9.]/g, '')) || 0;
+                totalPaid += amount;
+            });
+            
+            const amountDue = Math.max(0, invoiceTotal - totalPaid);
+            
+            document.getElementById('invoiceTotal').textContent = `${currency}${invoiceTotal.toFixed(2)}`;
+            document.getElementById('totalPaid').textContent = `${currency}${totalPaid.toFixed(2)}`;
+            document.getElementById('amountDue').textContent = `${currency}${amountDue.toFixed(2)}`;
+        }
+
+        // Get currency symbol
+        function getCurrencySymbol() {
+            const symbols = {
+                'USD': '$',
+                'EUR': '€',
+                'GBP': '£',
+                'PHP': '₱'
+            };
+            return symbols[document.getElementById('currency').value] || '$';
+        }
+
+        // Add item row
+        function addItem() {
+            const tbody = document.getElementById('itemsBody');
+            const newRow = tbody.rows[0].cloneNode(true);
+            newRow.querySelectorAll('input').forEach(input => {
+                if (input.classList.contains('item-desc')) input.value = '';
+                else if (input.classList.contains('item-qty')) input.value = '1';
+                else input.value = '0';
+            });
+            tbody.appendChild(newRow);
+            attachItemListeners(newRow);
+        }
+
+        // Attach listeners to item row
+        function attachItemListeners(row) {
+            row.querySelectorAll('.item-qty, .item-rate, .item-tax').forEach(input => {
+                input.addEventListener('input', () => updateItemAmount(row));
+            });
+            row.querySelector('.remove-item').addEventListener('click', () => {
+                if (document.getElementById('itemsBody').rows.length > 1) {
+                    row.remove();
+                    calculateTotals();
+                }
+            });
+        }
+
+        // Initialize listeners
+        document.querySelectorAll('#itemsBody tr').forEach(row => {
+            attachItemListeners(row);
+        });
+
+        document.getElementById('discountValue').addEventListener('input', calculateTotals);
+        document.getElementById('discountType').addEventListener('change', calculateTotals);
+        document.getElementById('currency').addEventListener('change', calculateTotals);
+
+        // Set default payment date to today
+        document.getElementById('newPaymentDate').valueAsDate = new Date();
+
+        // Generate preview
+        function generatePreview() {
+            const currency = getCurrencySymbol();
+            const items = [];
+            document.querySelectorAll('#itemsBody tr').forEach(row => {
+                const desc = row.querySelector('.item-desc').value;
+                if (desc) {
+                    const qty = parseFloat(row.querySelector('.item-qty').value);
+                    const rate = parseFloat(row.querySelector('.item-rate').value);
+                    const tax = parseFloat(row.querySelector('.item-tax').value) || 0;
+                    const lineTotal = qty * rate;
+                    const lineTax = lineTotal * (tax / 100);
+                    
+                    items.push({
+                        desc: desc,
+                        qty: row.querySelector('.item-qty').value,
+                        rate: rate.toFixed(2),
+                        tax: tax > 0 ? tax.toFixed(1) : '',
+                        amount: lineTotal.toFixed(2),
+                        total: (lineTotal + lineTax).toFixed(2)
+                    });
+                }
+            });
+
+            const subtotal = document.getElementById('subtotal').textContent;
+            const discountAmount = document.getElementById('discountAmount').textContent;
+            const taxAmount = document.getElementById('taxAmount').textContent;
+            const total = document.getElementById('total').textContent;
+            const amountDue = document.getElementById('amountDue').textContent;
+
+            // Get status badge
+            const statusMap = {
+                'draft': { emoji: '📝', text: 'DRAFT', color: '#94a3b8' },
+                'sent': { emoji: '📤', text: 'SENT', color: '#3b82f6' },
+                'paid': { emoji: '✅', text: 'PAID', color: '#10b981' },
+                'overdue': { emoji: '⚠️', text: 'OVERDUE', color: '#ef4444' },
+                'cancelled': { emoji: '❌', text: 'CANCELLED', color: '#6b7280' }
+            };
+            const status = statusMap[document.getElementById('invoiceStatus').value];
+
+            // Build logo section
+            let logoHtml = '';
+            if (logoDataUrl) {
+                logoHtml = `<img src="${logoDataUrl}" style="max-width: 180px; max-height: 70px; margin-bottom: 0.5rem;" alt="Logo">`;
+            }
+
+            // Build payment methods section
+            let paymentMethods = '';
+            const bankName = document.getElementById('bankName').value;
+            const accountNumber = document.getElementById('accountNumber').value;
+            const iban = document.getElementById('iban').value;
+            const swift = document.getElementById('swift').value;
+            const paypal = document.getElementById('paypal').value;
+            const venmo = document.getElementById('venmo').value;
+            const crypto = document.getElementById('crypto').value;
+            const paymentInstructions = document.getElementById('paymentInstructions').value;
+
+            if (bankName || accountNumber || iban || swift || paypal || venmo || crypto || paymentInstructions) {
+                paymentMethods = '<div style="margin-top: 2%; padding: 1%; background: #f9fafb; border-radius: 8px;">';
+                paymentMethods += '<div class="preview-label" style="margin-bottom: 0.5rem;">PAYMENT METHODS</div>';
+                
+                if (bankName || accountNumber) {
+                    paymentMethods += '<div style="margin-bottom: 0.5rem;"><strong>Bank Transfer:</strong></div>';
+                    if (bankName) paymentMethods += `<div style="font-size: 0.8rem;">Bank: ${bankName}</div>`;
+                    if (accountNumber) paymentMethods += `<div style="font-size: 0.8rem;">Account: ${accountNumber}</div>`;
+                    if (iban) paymentMethods += `<div style="font-size: 0.8rem;">IBAN: ${iban}</div>`;
+                    if (swift) paymentMethods += `<div style="font-size: 0.8rem;">SWIFT: ${swift}</div>`;
+                }
+                
+                if (paypal) paymentMethods += `<div style="margin-top: 0.5rem; font-size: 0.8rem;"><strong>PayPal:</strong> ${paypal}</div>`;
+                if (venmo) paymentMethods += `<div style="font-size: 0.8rem;"><strong>Venmo/Cash App:</strong> ${venmo}</div>`;
+                if (crypto) paymentMethods += `<div style="font-size: 0.8rem;"><strong>Crypto:</strong> ${crypto}</div>`;
+                if (paymentInstructions) paymentMethods += `<div style="margin-top: 0.5rem; font-size: 0.8rem; font-style: italic;">${paymentInstructions}</div>`;
+                
+                paymentMethods += '</div>';
+            }
+
+            // Build payment history section
+            let paymentHistoryHtml = '';
+            if (payments.length > 0) {
+                paymentHistoryHtml = '<div style="margin-top: 2%; padding: 1%; background: #f0fdf4; border-radius: 8px;">';
+                paymentHistoryHtml += '<div class="preview-label" style="margin-bottom: 0.5rem; color: #10b981;">💵 PAYMENT HISTORY</div>';
+                payments.forEach(p => {
+                    paymentHistoryHtml += `<div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 0.3rem;">
+                        <span>${p.date}</span>
+                        <span style="font-weight: 600; color: #10b981;">${currency}${p.amount.toFixed(2)}</span>
+                    </div>`;
+                });
+                paymentHistoryHtml += `<div style="display: flex; justify-content: space-between; font-size: 0.9rem; margin-top: 0.5rem; padding-top: 0.5rem; border-top: 2px solid #10b981; font-weight: 700;">
+                    <span>Amount Due:</span>
+                    <span style="color: #ef4444;">${amountDue}</span>
+                </div>`;
+                paymentHistoryHtml += '</div>';
+            }
+
+            // Build late fee section
+            let lateFeeSection = '';
+            const lateFeePercent = document.getElementById('lateFeePercent').value;
+            const lateFeeTerms = document.getElementById('lateFeeTerms').value;
+
+            if (parseFloat(lateFeePercent) > 0 || lateFeeTerms) {
+                lateFeeSection = '<div style="margin-top: 1.5%; padding: 1%; background: #fef2f2; border-left: 4px solid #ef4444; border-radius: 4px;">';
+                lateFeeSection += '<div class="preview-label" style="color: #dc2626; margin-bottom: 0.3rem;">⚠️ LATE PAYMENT TERMS</div>';
+                if (lateFeeTerms) {
+                    lateFeeSection += `<div style="font-size: 0.8rem;">${lateFeeTerms}</div>`;
+                } else if (parseFloat(lateFeePercent) > 0) {
+                    const gracePeriod = document.getElementById('gracePeriod').value;
+                    lateFeeSection += `<div style="font-size: 0.8rem;">A ${lateFeePercent}% late fee will be applied if payment is not received within ${gracePeriod || 0} days of the due date.</div>`;
+                }
+                lateFeeSection += '</div>';
+            }
+
+            // Build terms section
+            let termsSection = '';
+            const paymentTerms = document.getElementById('paymentTerms').value;
+            const refundPolicy = document.getElementById('refundPolicy').value;
+            const termsConditions = document.getElementById('termsConditions').value;
+
+            if (paymentTerms || refundPolicy || termsConditions) {
+                termsSection = '<div style="margin-top: 2%; padding: 1%; background: #fafafa; border-radius: 8px;">';
+                termsSection += '<div class="preview-label" style="margin-bottom: 0.5rem;">⚖️ TERMS & CONDITIONS</div>';
+                
+                if (paymentTerms) {
+                    termsSection += '<div style="margin-bottom: 0.5rem;"><strong>Payment Terms:</strong></div>';
+                    termsSection += `<div style="font-size: 0.8rem; margin-bottom: 0.8rem;">${paymentTerms}</div>`;
+                }
+                
+                if (refundPolicy) {
+                    termsSection += '<div style="margin-bottom: 0.5rem;"><strong>Refund Policy:</strong></div>';
+                    termsSection += `<div style="font-size: 0.8rem; margin-bottom: 0.8rem;">${refundPolicy}</div>`;
+                }
+                
+                if (termsConditions) {
+                    termsSection += '<div style="margin-bottom: 0.5rem;"><strong>Additional Terms:</strong></div>';
+                    termsSection += `<div style="font-size: 0.8rem;">${termsConditions}</div>`;
+                }
+                
+                termsSection += '</div>';
+            }
+
+            const html = `
+                <div class="preview-header">
+                    <div>
+                        ${logoHtml}
+                        <div class="preview-title">INVOICE</div>
+                        <div style="font-size: 0.8rem; color: #666;">techVA Freelancer Invoice</div>
+                        <div style="margin-top: 0.5rem; padding: 0.3rem 0.6rem; background: ${status.color}; color: white; display: inline-block; border-radius: 4px; font-size: 0.7rem; font-weight: 700;">
+                            ${status.emoji} ${status.text}
+                        </div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div class="preview-label">Invoice #</div>
+                        <div class="preview-value">${document.getElementById('invoiceNumber').value}</div>
+                        <div class="preview-label">Date</div>
+                        <div class="preview-value">${document.getElementById('invoiceDate').value}</div>
+                        <div class="preview-label">Due Date</div>
+                        <div class="preview-value">${document.getElementById('dueDate').value}</div>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2%; margin: 2% 0;">
+                    <div>
+                        <div class="preview-label">FROM</div>
+                        <div class="preview-value" style="font-weight: 600;">${document.getElementById('fromName').value}</div>
+                        <div class="preview-value" style="white-space: pre-line;">${document.getElementById('fromAddress').value}</div>
+                        <div class="preview-value">${document.getElementById('fromEmail').value}</div>
+                        <div class="preview-value">${document.getElementById('fromPhone').value}</div>
+                    </div>
+                    <div>
+                        <div class="preview-label">BILL TO</div>
+                        <div class="preview-value" style="font-weight: 600;">${document.getElementById('toName').value}</div>
+                        <div class="preview-value" style="white-space: pre-line;">${document.getElementById('toAddress').value}</div>
+                        <div class="preview-value">${document.getElementById('toEmail').value}</div>
+                        <div class="preview-value">${document.getElementById('toPhone').value}</div>
+                    </div>
+                </div>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 2% 0;">
+                    <thead>
+                        <tr style="background: #f3f4f6; border-bottom: 2px solid #000;">
+                            <th style="padding: 0.5rem; text-align: left; font-size: 0.75rem;">DESCRIPTION</th>
+                            <th style="padding: 0.5rem; text-align: center; font-size: 0.75rem; width: 70px;">QTY</th>
+                            <th style="padding: 0.5rem; text-align: right; font-size: 0.75rem; width: 90px;">RATE</th>
+                            <th style="padding: 0.5rem; text-align: right; font-size: 0.75rem; width: 70px;">TAX</th>
+                            <th style="padding: 0.5rem; text-align: right; font-size: 0.75rem; width: 90px;">TOTAL</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${items.map(item => `
+                            <tr style="border-bottom: 1px solid #e5e7eb;">
+                                <td style="padding: 0.5rem; font-size: 0.8rem;">${item.desc}</td>
+                                <td style="padding: 0.5rem; text-align: center; font-size: 0.8rem;">${item.qty}</td>
+                                <td style="padding: 0.5rem; text-align: right; font-size: 0.8rem;">${currency}${item.rate}</td>
+                                <td style="padding: 0.5rem; text-align: right; font-size: 0.8rem;">${item.tax ? item.tax + '%' : '-'}</td>
+                                <td style="padding: 0.5rem; text-align: right; font-size: 0.8rem;">${currency}${item.total}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+
+                <div style="margin-left: auto; width: 300px; margin-top: 2%;">
+                    <div style="display: flex; justify-content: space-between; padding: 0.5rem 0; font-size: 0.85rem;">
+                        <span>Subtotal:</span>
+                        <span>${subtotal}</span>
+                    </div>
+                    ${parseFloat(document.getElementById('discountValue').value) > 0 ? `
+                        <div style="display: flex; justify-content: space-between; padding: 0.5rem 0; font-size: 0.85rem; color: #10b981;">
+                            <span>Discount (${document.getElementById('discountValue').value}${document.getElementById('discountType').value === 'percent' ? '%' : ' fixed'}):</span>
+                            <span>-${discountAmount}</span>
+                        </div>
+                    ` : ''}
+                    <div style="display: flex; justify-content: space-between; padding: 0.5rem 0; font-size: 0.85rem;">
+                        <span>Total Tax:</span>
+                        <span>${taxAmount}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: 1rem 0; border-top: 2px solid #000; font-size: 1.1rem; font-weight: 700;">
+                        <span>TOTAL:</span>
+                        <span>${total}</span>
+                    </div>
+                </div>
+
+                ${paymentHistoryHtml}
+                ${paymentMethods}
+                ${lateFeeSection}
+                ${termsSection}
+
+                ${document.getElementById('notes').value ? `
+                    <div style="margin-top: 2%; padding-top: 2%; border-top: 1px solid #e5e7eb;">
+                        <div class="preview-label">NOTES</div>
+                        <div style="font-size: 0.8rem; white-space: pre-line; margin-top: 0.5rem;">${document.getElementById('notes').value}</div>
+                    </div>
+                ` : ''}
+
+                <div style="margin-top: 3%; text-align: center; font-size: 0.7rem; color: #999; border-top: 1px solid #e5e7eb; padding-top: 1%;">
+                    Generated with techVA Invoice Generator 2026
+                </div>
+            `;
+
+            document.getElementById('preview').innerHTML = html;
+            document.getElementById('preview').classList.add('active');
+            document.getElementById('preview').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Download PDF (print to PDF)
+        function downloadPDF() {
+            generatePreview();
+            setTimeout(() => {
+                window.print();
+            }, 300);
+        }
+
+        // Logo upload handling
+        let logoDataUrl = '';
+        
+        function handleLogoUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            // Check file size (max 2MB)
+            if (file.size > 2 * 1024 * 1024) {
+                alert('⚠️ Logo file size must be less than 2MB');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                logoDataUrl = e.target.result;
+                document.getElementById('logoPreview').src = logoDataUrl;
+                document.getElementById('logoPreviewContainer').style.display = 'block';
+                document.getElementById('logoPlaceholder').style.display = 'none';
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        function removeLogo() {
+            logoDataUrl = '';
+            document.getElementById('logoPreview').src = '';
+            document.getElementById('logoPreviewContainer').style.display = 'none';
+            document.getElementById('logoPlaceholder').style.display = 'block';
+            document.getElementById('logoInput').value = '';
+        }
+
+        // Auto-increment invoice number
+        function generateNextInvoiceNumber() {
+            const prefix = document.getElementById('invoicePrefix').value;
+            const currentNumber = parseInt(document.getElementById('invoiceAutoNumber').value) || 1;
+            const nextNumber = currentNumber + 1;
+            
+            // Format number with leading zeros
+            const formattedNumber = String(currentNumber).padStart(3, '0');
+            document.getElementById('invoiceNumber').value = prefix + formattedNumber;
+            document.getElementById('invoiceAutoNumber').value = nextNumber;
+            
+            // Visual feedback
+            const btn = event.target;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '✅ Generated!';
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+            }, 1500);
+        }
+
+        // Payment tracking
+        const payments = [];
+        
+        function addPayment() {
+            const date = document.getElementById('newPaymentDate').value;
+            const amount = parseFloat(document.getElementById('newPaymentAmount').value);
+            
+            if (!date || !amount || amount <= 0) {
+                alert('⚠️ Please enter a valid date and amount');
+                return;
+            }
+            
+            const payment = { date, amount };
+            payments.push(payment);
+            renderPaymentHistory();
+            
+            // Clear inputs
+            document.getElementById('newPaymentAmount').value = '';
+            
+            // Recalculate totals
+            calculateTotals();
+        }
+        
+        function removePayment(index) {
+            payments.splice(index, 1);
+            renderPaymentHistory();
+            calculateTotals();
+        }
+        
+        function renderPaymentHistory() {
+            const container = document.getElementById('paymentHistoryList');
+            const currency = getCurrencySymbol();
+            
+            if (payments.length === 0) {
+                container.innerHTML = '<div style="text-align: center; padding: 1rem; color: var(--text-muted); font-size: 0.75rem;">No payments recorded yet</div>';
+                return;
+            }
+            
+            container.innerHTML = payments.map((payment, index) => `
+                <div class="payment-entry">
+                    <div style="font-size: 0.75rem;">${payment.date}</div>
+                    <div style="font-size: 0.75rem; font-weight: 600; color: var(--secondary);" class="payment-amount-display">${currency}${payment.amount.toFixed(2)}</div>
+                    <button class="btn btn-danger" onclick="removePayment(${index})" style="padding: 0.3rem 0.5rem; font-size: 0.65rem;">✕</button>
+                </div>
+            `).join('');
+        }
+
+        // Save invoice to JSON file
+        function saveInvoice() {
+            const items = [];
+            document.querySelectorAll('#itemsBody tr').forEach(row => {
+                items.push({
+                    desc: row.querySelector('.item-desc').value,
+                    qty: row.querySelector('.item-qty').value,
+                    rate: row.querySelector('.item-rate').value,
+                    tax: row.querySelector('.item-tax').value,
+                    amount: row.querySelector('.item-amount').value
+                });
+            });
+
+            const invoiceData = {
+                version: '2.0',
+                logo: logoDataUrl,
+                status: document.getElementById('invoiceStatus').value,
+                invoicePrefix: document.getElementById('invoicePrefix').value,
+                invoiceAutoNumber: document.getElementById('invoiceAutoNumber').value,
+                invoiceNumber: document.getElementById('invoiceNumber').value,
+                invoiceDate: document.getElementById('invoiceDate').value,
+                dueDate: document.getElementById('dueDate').value,
+                currency: document.getElementById('currency').value,
+                from: {
+                    name: document.getElementById('fromName').value,
+                    address: document.getElementById('fromAddress').value,
+                    email: document.getElementById('fromEmail').value,
+                    phone: document.getElementById('fromPhone').value
+                },
+                to: {
+                    name: document.getElementById('toName').value,
+                    address: document.getElementById('toAddress').value,
+                    email: document.getElementById('toEmail').value,
+                    phone: document.getElementById('toPhone').value
+                },
+                items: items,
+                discount: {
+                    value: document.getElementById('discountValue').value,
+                    type: document.getElementById('discountType').value
+                },
+                payment: {
+                    bankName: document.getElementById('bankName').value,
+                    accountNumber: document.getElementById('accountNumber').value,
+                    iban: document.getElementById('iban').value,
+                    swift: document.getElementById('swift').value,
+                    paypal: document.getElementById('paypal').value,
+                    venmo: document.getElementById('venmo').value,
+                    crypto: document.getElementById('crypto').value,
+                    instructions: document.getElementById('paymentInstructions').value
+                },
+                lateFee: {
+                    percent: document.getElementById('lateFeePercent').value,
+                    gracePeriod: document.getElementById('gracePeriod').value,
+                    terms: document.getElementById('lateFeeTerms').value
+                },
+                payments: payments,
+                terms: {
+                    paymentTerms: document.getElementById('paymentTerms').value,
+                    refundPolicy: document.getElementById('refundPolicy').value,
+                    termsConditions: document.getElementById('termsConditions').value
+                },
+                notes: document.getElementById('notes').value,
+                savedDate: new Date().toISOString()
+            };
+
+            const blob = new Blob([JSON.stringify(invoiceData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `invoice-${invoiceData.invoiceNumber}-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            // Visual feedback
+            const btn = event.target;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '✅ Saved!';
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+            }, 2000);
+        }
+
+        // Load invoice from JSON file
+        function loadInvoice(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    
+                    // Load logo
+                    if (data.logo) {
+                        logoDataUrl = data.logo;
+                        document.getElementById('logoPreview').src = logoDataUrl;
+                        document.getElementById('logoPreviewContainer').style.display = 'block';
+                        document.getElementById('logoPlaceholder').style.display = 'none';
+                    }
+                    
+                    // Load basic info
+                    document.getElementById('invoiceStatus').value = data.status || 'draft';
+                    document.getElementById('invoicePrefix').value = data.invoicePrefix || 'INV-2026-';
+                    document.getElementById('invoiceAutoNumber').value = data.invoiceAutoNumber || '1';
+                    document.getElementById('invoiceNumber').value = data.invoiceNumber || '';
+                    document.getElementById('invoiceDate').value = data.invoiceDate || '';
+                    document.getElementById('dueDate').value = data.dueDate || '';
+                    document.getElementById('currency').value = data.currency || 'USD';
+
+                    // Load from/to info
+                    document.getElementById('fromName').value = data.from?.name || '';
+                    document.getElementById('fromAddress').value = data.from?.address || '';
+                    document.getElementById('fromEmail').value = data.from?.email || '';
+                    document.getElementById('fromPhone').value = data.from?.phone || '';
+                    
+                    document.getElementById('toName').value = data.to?.name || '';
+                    document.getElementById('toAddress').value = data.to?.address || '';
+                    document.getElementById('toEmail').value = data.to?.email || '';
+                    document.getElementById('toPhone').value = data.to?.phone || '';
+
+                    // Load items
+                    const tbody = document.getElementById('itemsBody');
+                    tbody.innerHTML = '';
+                    if (data.items && data.items.length > 0) {
+                        data.items.forEach(item => {
+                            const newRow = document.createElement('tr');
+                            newRow.innerHTML = `
+                                <td><input type="text" placeholder="Service description" class="item-desc" value="${item.desc || ''}"></td>
+                                <td><input type="number" value="${item.qty || 1}" min="0" step="0.01" class="item-qty"></td>
+                                <td><input type="number" value="${item.rate || 0}" min="0" step="0.01" class="item-rate"></td>
+                                <td><input type="number" value="${item.tax || 0}" min="0" max="100" step="0.1" class="item-tax" placeholder="0"></td>
+                                <td><input type="number" value="${item.amount || 0}" readonly class="item-amount"></td>
+                                <td><button class="btn btn-danger remove-item">✕</button></td>
+                            `;
+                            tbody.appendChild(newRow);
+                            attachItemListeners(newRow);
+                        });
+                    } else {
+                        addItem();
+                    }
+
+                    // Load discount
+                    document.getElementById('discountValue').value = data.discount?.value || 0;
+                    document.getElementById('discountType').value = data.discount?.type || 'percent';
+
+                    // Load payment info
+                    document.getElementById('bankName').value = data.payment?.bankName || '';
+                    document.getElementById('accountNumber').value = data.payment?.accountNumber || '';
+                    document.getElementById('iban').value = data.payment?.iban || '';
+                    document.getElementById('swift').value = data.payment?.swift || '';
+                    document.getElementById('paypal').value = data.payment?.paypal || '';
+                    document.getElementById('venmo').value = data.payment?.venmo || '';
+                    document.getElementById('crypto').value = data.payment?.crypto || '';
+                    document.getElementById('paymentInstructions').value = data.payment?.instructions || '';
+
+                    // Load late fee info
+                    document.getElementById('lateFeePercent').value = data.lateFee?.percent || 0;
+                    document.getElementById('gracePeriod').value = data.lateFee?.gracePeriod || 0;
+                    document.getElementById('lateFeeTerms').value = data.lateFee?.terms || '';
+
+                    // Load payments
+                    payments.length = 0; // Clear array
+                    if (data.payments && data.payments.length > 0) {
+                        payments.push(...data.payments);
+                        renderPaymentHistory();
+                    }
+
+                    // Load terms
+                    document.getElementById('paymentTerms').value = data.terms?.paymentTerms || '';
+                    document.getElementById('refundPolicy').value = data.terms?.refundPolicy || '';
+                    document.getElementById('termsConditions').value = data.terms?.termsConditions || '';
+
+                    // Load notes
+                    document.getElementById('notes').value = data.notes || '';
+
+                    calculateTotals();
+                    
+                    alert('✅ Invoice loaded successfully!');
+                } catch (error) {
+                    alert('❌ Error loading invoice: ' + error.message);
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // Initial calculation
+        calculateTotals();
+    </script>
+</body>
+</html>
